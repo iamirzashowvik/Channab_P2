@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:channab2day/animal_list.dart';
 import 'package:channab2day/model/note.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -42,7 +43,7 @@ class _Add_animalState extends State<Add_animal> {
   bool _inProcess = false;
   String _date;
   String gender;
-  String type;
+  String type = 'DRY';
   String name;
   String currentCat;
   Widget getImageWidget() {
@@ -321,6 +322,9 @@ class _Add_animalState extends State<Add_animal> {
                           setState(() {
                             gender = value;
                             _file = File(_selectedFile.path);
+                            print(_date);
+                            print(currentCat);
+                            print(gender);
                             print(_selectedFile.path);
                           });
                         }),
@@ -345,7 +349,7 @@ class _Add_animalState extends State<Add_animal> {
                     String url =
                         "https://channab.com/" + "api/live_animal_Add/";
                     Map<String, String> headers = <String, String>{
-                      'token': widget.token
+                      'token': "50a67c112aff02f32cfefd52c242933b727d28bd"
                     };
                     Map<String, String> requestBody = body;
                     var uri = Uri.parse(url);
@@ -360,9 +364,13 @@ class _Add_animalState extends State<Add_animal> {
                     var data = json.decode(response.body);
                     print(data);
                     if (response.statusCode == 200) {
-                      setState(() {
-                        i = 1;
-                      });
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => Animal_list(
+                                  token: widget.token,
+                                )),
+                      );
                     } else {
                       setState(() {
                         i = 0;

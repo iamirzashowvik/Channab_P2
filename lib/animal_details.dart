@@ -1,10 +1,11 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:channab2day/model/activeS_AD.dart';
+import 'package:channab2day/model/ad_tab_Data.dart';
 import 'package:channab2day/model/char_card.dart';
 import 'package:http/http.dart' as http;
 import 'package:channab2day/add_animal.dart';
-import 'package:channab2day/model/animal_id.dart';
+
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +24,7 @@ class Animal_details extends StatefulWidget {
 class _Animal_detailsState extends State<Animal_details>
     with SingleTickerProviderStateMixin {
   String token = "50a67c112aff02f32cfefd52c242933b727d28bd";
-  String id = "19";
+  String id = "67";
   showAlertDialog4(BuildContext context) {
     // set up the list options
     String des;
@@ -88,17 +89,24 @@ class _Animal_detailsState extends State<Animal_details>
     );
   }
 
+  String kIanimaltag;
+  String kIcoP;
+  String kIage;
+  String kIgender;
+  String kIcurentType;
+  String kIbreed;
+  String kIdop;
   showAlertDialog5(BuildContext context) {
     // set up the list options
     int i = 0;
 
-    String kIanimaltag;
-    String kIcoP;
-    String kIage;
-    String kIgender;
-    String kIcurentType;
-    String kIbreed;
-    String kIdop;
+    // String kIanimaltag;
+    // String kIcoP;
+    // String kIage;
+    // String kIgender;
+    // String kIcurentType;
+    // String kIbreed;
+    // String kIdop;
     // set up the SimpleDialog
     SimpleDialog dialog = SimpleDialog(
       title: const Text('Edit Animal'),
@@ -110,6 +118,7 @@ class _Animal_detailsState extends State<Animal_details>
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: TextField(
+            decoration: InputDecoration(hintText: kIanimaltag),
             onChanged: (value) {
               kIanimaltag = value;
               print(kIanimaltag);
@@ -135,6 +144,7 @@ class _Animal_detailsState extends State<Animal_details>
                       .then((date) {
                     setState(() {
                       kIage = date.toString().split(" ")[0];
+                      showAlertDialog5(context);
                       print(kIage);
                     });
                   });
@@ -172,6 +182,7 @@ class _Animal_detailsState extends State<Animal_details>
                 onChanged: (value) {
                   setState(() {
                     kIgender = value;
+                    showAlertDialog5(context);
                   });
                 }),
           ),
@@ -219,6 +230,7 @@ class _Animal_detailsState extends State<Animal_details>
                 onChanged: (value) {
                   setState(() {
                     kIcurentType = value;
+                    showAlertDialog5(context);
                     // print(currentCat);
                   });
                 }),
@@ -255,6 +267,7 @@ class _Animal_detailsState extends State<Animal_details>
                 onChanged: (value) {
                   setState(() {
                     kIbreed = value;
+                    showAlertDialog5(context);
                   });
                 }),
           ),
@@ -266,8 +279,15 @@ class _Animal_detailsState extends State<Animal_details>
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: TextField(
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              hintText: kIcoP,
+            ),
             onChanged: (value) {
-              kIcoP = value;
+              setState(() {
+                kIcoP = value;
+                //showAlertDialog5(context);
+              });
             },
           ),
         ),
@@ -290,13 +310,14 @@ class _Animal_detailsState extends State<Animal_details>
                       .then((date) {
                     setState(() {
                       kIdop = date.toString().split(" ")[0];
+                      showAlertDialog5(context);
                       print(kIdop);
                     });
                   });
                 }),
           ),
         ),
-        getImageWidget(),
+        getImageWidget5(),
         Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
@@ -307,7 +328,7 @@ class _Animal_detailsState extends State<Animal_details>
                     style: TextStyle(color: Colors.white),
                   ),
                   onPressed: () {
-                    getImage(ImageSource.camera);
+                    getImage5(ImageSource.camera);
                   }),
               MaterialButton(
                   color: Colors.deepOrange,
@@ -316,44 +337,61 @@ class _Animal_detailsState extends State<Animal_details>
                     style: TextStyle(color: Colors.white),
                   ),
                   onPressed: () {
-                    getImage(ImageSource.gallery);
+                    getImage5(ImageSource.gallery);
                   }),
             ]),
         GestureDetector(
           onTap: () async {
+            http.Response response;
             Map<String, String> body = {
               "animal_tag": kIanimaltag,
-              "animal_particular_id": "42", //this need to dynamic
+              "animal_particular_id": id, //this need to dynamic
               "age": kIage,
               "animal_bread": kIbreed,
               "gender": kIgender,
-              // "animal_type": kI,
-              "cost_purchase": kIcoP,
-              "date_of_purchase": kIdop,
+              "animal_type": kIcurentType,
+              "cost_purchase": kIcoP == null ? '' : kIcoP,
+              "date_of_purchase": kIdop == null ? '' : kIdop,
             };
-            final mineData =
-                lookupMimeType(_selectedFile.path, headerBytes: [0xFF, 0xD8])
-                    .split("/");
-            var image = await http.MultipartFile.fromPath(
-                "main_image", _selectedFile.path,
-                contentType: MediaType(mineData[0], mineData[1]));
-            SharedPreferences pref = await SharedPreferences.getInstance();
-            String url = "https://channab.com/api/main_animal_info_update/";
-            Map<String, String> headers = <String, String>{'token': token};
-            Map<String, String> requestBody = body;
-            var uri = Uri.parse(url);
-            var request = http.MultipartRequest('POST', uri)
-              ..headers.addAll(headers)
-              ..files.add(image)
-              ..fields.addAll(requestBody);
+            if (tap == 0) {
+              SharedPreferences pref = await SharedPreferences.getInstance();
+              String url = "https://channab.com/api/main_animal_info_update/";
+              Map<String, String> headers = <String, String>{'token': token};
+              Map<String, String> requestBody = body;
+              var uri = Uri.parse(url);
+              var request = http.MultipartRequest('POST', uri)
+                ..headers.addAll(headers)
+                ..fields.addAll(requestBody);
 
-            var res = await request.send();
-            http.Response response = await http.Response.fromStream(res);
+              var res = await request.send();
+              response = await http.Response.fromStream(res);
+            } else {
+              final mineData =
+                  lookupMimeType(path5, headerBytes: [0xFF, 0xD8]).split("/");
+              print(path5);
+              var image = await http.MultipartFile.fromPath("main_image", path5,
+                  contentType: MediaType(mineData[0], mineData[1]));
+              SharedPreferences pref = await SharedPreferences.getInstance();
+              String url = "https://channab.com/api/main_animal_info_update/";
+              Map<String, String> headers = <String, String>{'token': token};
+              Map<String, String> requestBody = body;
+              var uri = Uri.parse(url);
+              var request = http.MultipartRequest('POST', uri)
+                ..headers.addAll(headers)
+                ..files.add(image)
+                ..fields.addAll(requestBody);
+
+              var res = await request.send();
+              response = await http.Response.fromStream(res);
+            }
+
             var data = json.decode(response.body);
             print(data);
+
             if (response.statusCode == 200) {
               setState(() {
                 i = 1;
+                showAlertDialog5(context);
               });
             } else {
               setState(() {
@@ -376,8 +414,10 @@ class _Animal_detailsState extends State<Animal_details>
     );
   }
 
+  int tap = 0;
   File _selectedFile;
-  getImage(ImageSource source) async {
+  getImage5(ImageSource source) async {
+    tap = 1;
     final picker = ImagePicker();
     PickedFile image = await picker.getImage(source: source);
     if (image != null) {
@@ -396,8 +436,9 @@ class _Animal_detailsState extends State<Animal_details>
           ));
 
       this.setState(() {
-        _selectedFile = cropped;
-        // showAlertDialog5(context);
+        _selectedFile5 = cropped;
+        path5 = _selectedFile5.path;
+        showAlertDialog5(context);
       });
     }
   }
@@ -428,11 +469,12 @@ class _Animal_detailsState extends State<Animal_details>
     }
   }
 
+  String path5;
   String path3;
-  Widget getImageWidget() {
-    if (_selectedFile != null) {
+  Widget getImageWidget5() {
+    if (_selectedFile5 != null) {
       return Image.file(
-        _selectedFile,
+        _selectedFile5,
         width: 250,
         height: 250,
         fit: BoxFit.cover,
@@ -447,6 +489,7 @@ class _Animal_detailsState extends State<Animal_details>
     }
   }
 
+  File _selectedFile5;
   File _selectedFile3;
   Widget getImageWidget3() {
     if (_selectedFile3 != null) {
@@ -470,11 +513,12 @@ class _Animal_detailsState extends State<Animal_details>
   String hCost;
   String hContent;
   Color selectedColor2 = Colors.black;
-  bool isSwitch;
+  bool isSwitch = true;
+//initalize value
 
   String activeButton;
   TabController _tabController;
-  AnimalId _animalId;
+  AdTab _adTab;
   _getdata() async {
     Dio dio = Dio();
 //default is
@@ -484,7 +528,7 @@ class _Animal_detailsState extends State<Animal_details>
             headers: {"token": "50a67c112aff02f32cfefd52c242933b727d28bd"}));
     print(r.data);
     setState(() {
-      _animalId = animalIdFromJson(r.data);
+      _adTab = adTabFromJson(r.data);
     });
   }
 
@@ -824,6 +868,7 @@ class _Animal_detailsState extends State<Animal_details>
     );
   }
 
+//_animalId.currentAnimalBasicDetail.animalTag="";
   ActiveStatus _activeStatus;
   @override
   void initState() {
@@ -860,125 +905,67 @@ class _Animal_detailsState extends State<Animal_details>
       allowFontScaling: true,
       child: SafeArea(
         child: Scaffold(
+          appBar: AppBar(
+            actions: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: GestureDetector(
+                    onTap: () {
+                      showAlertDialog5(context);
+                    },
+                    child: Icon(Icons.edit)),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: CircleAvatar(
+                  backgroundColor: Colors.green,
+                  child: Icon(
+                    Icons.notifications_active,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              Switch(
+                activeColor: Colors.white,
+                value: isSwitch,
+                onChanged: (value) {
+                  setState(() {
+                    isSwitch = value;
+                  });
+                },
+              )
+            ],
+          ),
           backgroundColor: Colors.white60,
-          body: _animalId == null
+          body: _adTab == null
               ? Center(child: CircularProgressIndicator())
               : Column(
                   children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
+                    Row(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: CircleAvatar(
+                            backgroundImage: NetworkImage(
+                                _adTab.productDetails.productImage),
+                            radius: 50,
+                          ),
                         ),
-                        height: 175,
-                        child: Column(
+                        Column(
                           children: <Widget>[
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: <Widget>[
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: CircleAvatar(
-                                    backgroundImage: NetworkImage(_animalId
-                                        .currentAnimalBasicDetail.productImage),
-                                    radius: 50,
-                                  ),
-                                ),
-                                Column(
-                                  children: <Widget>[
-                                    Row(
-                                      //  mainAxisAlignment: MainAxisAlignment.,
-                                      children: <Widget>[
-                                        Char_card(
-                                          name:
-                                              'Age ${_animalId.currentAnimalBasicDetail.ageInMonth.toString()} Month',
-                                          cc: Colors.green,
-                                        ),
-                                        Char_card(
-                                          name: _animalId
-                                              .currentAnimalBasicDetail
-                                              .animalGender,
-                                          cc: Colors.green,
-                                        ),
-                                        Char_card(
-                                          name: _animalId
-                                              .currentAnimalBasicDetail
-                                              .animalType,
-                                          cc: Colors.green,
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: <Widget>[
-                                        Char_card(
-                                          name: _animalId
-                                              .currentAnimalBasicDetail
-                                              .animalBreed,
-                                          cc: Colors.green,
-                                        ),
-                                        Char_card(
-                                          name:
-                                              isSwitch ? 'Active' : 'Disabled',
-                                          cc: isSwitch
-                                              ? Colors.green
-                                              : Colors.red,
-                                        ),
-                                        Switch(
-                                          value: isSwitch,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              isSwitch = value;
-                                            });
-                                          },
-                                        )
-                                      ],
-                                    )
-                                  ],
-                                )
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: <Widget>[
-                                Char_card(
-                                  name: _animalId
-                                      .currentAnimalBasicDetail.animalTag,
-                                  cc: Colors.green,
-                                ),
-                                CircleAvatar(
-                                  backgroundColor: Colors.green,
-                                  child: Icon(
-                                    Icons.notifications_active,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                GestureDetector(
-                                    onTap: () {
-                                      if (_tabController.index == 0) {
-                                        showAlertDialog0(context);
-                                      } else if (_tabController.index == 1) {
-                                        showAlertDialog1(context);
-                                      } else if (_tabController.index == 2) {
-                                        showAlertDialog2(context);
-                                      } else if (_tabController.index == 3) {
-                                        showAlertDialog3(context);
-                                      } else {
-                                        showAlertDialog4(context);
-                                      }
-                                    },
-                                    child: Icon(Icons.add)),
-                                GestureDetector(
-                                    onTap: () {
-                                      showAlertDialog5(context);
-                                    },
-                                    child: Icon(Icons.edit)),
+                                // TextResponsive(
+                                //   _adTab,
+                                //   style: TextStyle(
+                                //     fontSize: 35,
+                                //   ),
+                                // ),
                               ],
                             )
                           ],
-                        ),
-                      ),
+                        )
+                      ],
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),

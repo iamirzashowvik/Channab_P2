@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:channab2day/add_animal.dart';
 import 'package:channab2day/filter.dart';
 import 'package:channab2day/model/animal_Categoru.dart';
 import 'package:flutter/cupertino.dart';
@@ -13,13 +14,16 @@ import 'package:http/http.dart' as http;
 
 class Animal_list extends StatefulWidget {
   var filter;
-  Animal_list({this.filter});
+  final String token;
+  Animal_list({this.filter, this.token});
   @override
   _Animal_listState createState() => _Animal_listState();
 }
 
 class _Animal_listState extends State<Animal_list>
     with SingleTickerProviderStateMixin {
+  String idd = '50a67c112aff02f32cfefd52c242933b727d28bd';
+  // widget.token;
   bool isSelect = false;
   Color _color = Colors.blue;
   int _selectedIndex = 1;
@@ -54,8 +58,7 @@ class _Animal_listState extends State<Animal_list>
   getCategory() async {
     Dio dio = Dio();
     Response r = await dio.get("https://channab.com/api/all_category/",
-        options: Options(
-            headers: {"token": "50a67c112aff02f32cfefd52c242933b727d28bd"}));
+        options: Options(headers: {"token": idd}));
     // print(r.data);
     setState(() {
       animalCategory = animalCategoryFromJson(r.data);
@@ -67,14 +70,11 @@ class _Animal_listState extends State<Animal_list>
     Dio dio = Dio();
 
     Response r = await dio.get("https://channab.com/api/livestock_listing/",
-        options: Options(
-            headers: {"token": "50a67c112aff02f32cfefd52c242933b727d28bd"}));
+        options: Options(headers: {"token": widget.token}));
 
     if (widget.filter != null) {
       String url = "https://channab.com/api/search_listing/";
-      Map<String, String> headers = <String, String>{
-        'token': "50a67c112aff02f32cfefd52c242933b727d28bd"
-      };
+      Map<String, String> headers = <String, String>{'token': idd};
       Map<String, String> requestBody = widget.filter;
       var uri = Uri.parse(url);
       var request = http.MultipartRequest('POST', uri)
@@ -295,9 +295,9 @@ class _Animal_listState extends State<Animal_list>
                                         animallistModel.allAnimalList[index];
                                     return Animal_list_card(
                                       a_tag: items.animalTag,
-                                      id: items.id,
+                                      id: items.gender.toString(),
                                       asset: items.image,
-                                      gender: items.gender,
+                                      gender: items.animalType.toString(),
                                     );
                                   }),
                               Text("data2"),
@@ -363,7 +363,15 @@ class _Animal_listState extends State<Animal_list>
           ],
         ),
         floatingActionButton: GestureDetector(
-          onTap: () {},
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => Add_animal(
+                        token: widget.token,
+                      )),
+            );
+          },
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Container(
@@ -392,9 +400,23 @@ class _Animal_listState extends State<Animal_list>
 class Animal_list_card extends StatelessWidget {
   final String asset;
   final String a_tag;
-  final int id;
-  final Gender gender;
+  final String id;
+  final String gender;
   Animal_list_card({this.a_tag, this.asset, this.id, this.gender});
+  col(String s) {
+    if (s == 'DRY') {
+      return Colors.red;
+    } else if (s == 'MILKING') {
+      return Colors.green;
+    } else if (s == 'PREGNANT') {
+      return Colors.yellow;
+    } else if (s == 'MILKING-PREGNANT') {
+      return Colors.grey;
+    } else {
+      return Colors.blue;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -433,7 +455,7 @@ class Animal_list_card extends StatelessWidget {
                           ),
                         ),
                         TextResponsive(
-                          id.toString(),
+                          id.toString().substring(7),
                           style: TextStyle(
                             fontSize: 40,
                           ),
@@ -448,12 +470,12 @@ class Animal_list_card extends StatelessWidget {
                         height: 40,
                         width: 100,
                         decoration: BoxDecoration(
-                          color: Colors.blue,
+                          color: col(gender.substring(11)),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Center(
                             child: TextResponsive(
-                          gender.toString().substring(7),
+                          gender.toString().substring(11),
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 40,

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:channab2day/animal_list.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -188,7 +189,7 @@ class _SignInState extends State<SignIn> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => Add_animal(
+                          builder: (context) => Animal_list(
                                 token: userToken,
                               )),
                     );
