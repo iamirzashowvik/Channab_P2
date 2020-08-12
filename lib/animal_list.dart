@@ -22,7 +22,7 @@ class Animal_list extends StatefulWidget {
 
 class _Animal_listState extends State<Animal_list>
     with SingleTickerProviderStateMixin {
-  String idd = '50a67c112aff02f32cfefd52c242933b727d28bd';
+  // String idd = '50a67c112aff02f32cfefd52c242933b727d28bd';
   // widget.token;
   bool isSelect = false;
   Color _color = Colors.blue;
@@ -58,7 +58,7 @@ class _Animal_listState extends State<Animal_list>
   getCategory() async {
     Dio dio = Dio();
     Response r = await dio.get("https://channab.com/api/all_category/",
-        options: Options(headers: {"token": idd}));
+        options: Options(headers: {"token": widget.token}));
     // print(r.data);
     setState(() {
       animalCategory = animalCategoryFromJson(r.data);
@@ -74,7 +74,7 @@ class _Animal_listState extends State<Animal_list>
 
     if (widget.filter != null) {
       String url = "https://channab.com/api/search_listing/";
-      Map<String, String> headers = <String, String>{'token': idd};
+      Map<String, String> headers = <String, String>{'token': widget.token};
       Map<String, String> requestBody = widget.filter;
       var uri = Uri.parse(url);
       var request = http.MultipartRequest('POST', uri)
@@ -108,10 +108,10 @@ class _Animal_listState extends State<Animal_list>
       height: 1920, // Optional
       width: 1080, // Optional
       allowFontScaling: true,
-      child: Scaffold(
-        body: animallistModel == null
-            ? Center(child: CircularProgressIndicator())
-            : Column(
+      child: animallistModel == null
+          ? Center(child: CircularProgressIndicator())
+          : Scaffold(
+              body: Column(
                 // shrinkWrap: true,
                 children: <Widget>[
                   Container(
@@ -295,9 +295,9 @@ class _Animal_listState extends State<Animal_list>
                                         animallistModel.allAnimalList[index];
                                     return Animal_list_card(
                                       a_tag: items.animalTag,
-                                      id: items.gender.toString(),
+                                      id: items.id,
                                       asset: items.image,
-                                      gender: items.animalType.toString(),
+                                      gender: items.gender,
                                     );
                                   }),
                               Text("data2"),
@@ -314,85 +314,85 @@ class _Animal_listState extends State<Animal_list>
                   ),
                 ],
               ),
-        bottomNavigationBar: BottomNavigationBar(
-          // type: BottomNavigationBarType.fixed,
-          selectedIconTheme: IconThemeData(color: Colors.green),
-          selectedItemColor: Colors.green,
-          unselectedItemColor: Color(0xff707070),
-          showSelectedLabels: false,
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.home,
+              bottomNavigationBar: BottomNavigationBar(
+                // type: BottomNavigationBarType.fixed,
+                selectedIconTheme: IconThemeData(color: Colors.green),
+                selectedItemColor: Colors.green,
+                unselectedItemColor: Color(0xff707070),
+                showSelectedLabels: false,
+                currentIndex: _selectedIndex,
+                onTap: _onItemTapped,
+                items: const <BottomNavigationBarItem>[
+                  BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.home,
+                    ),
+                    title: TextResponsive(
+                      'Home',
+                      style: optionStyle,
+                    ),
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.tram,
+                    ),
+                    title: TextResponsive(
+                      'My Farm',
+                      style: optionStyle,
+                    ),
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.people_outline,
+                    ),
+                    title: TextResponsive(
+                      'Users',
+                      style: optionStyle,
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.settings,
+                    ),
+                    title: TextResponsive(
+                      'Settings',
+                      style: optionStyle,
+                    ),
+                  ),
+                ],
               ),
-              title: TextResponsive(
-                'Home',
-                style: optionStyle,
-              ),
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.tram,
-              ),
-              title: TextResponsive(
-                'My Farm',
-                style: optionStyle,
-              ),
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.people_outline,
-              ),
-              title: TextResponsive(
-                'Users',
-                style: optionStyle,
-                textAlign: TextAlign.left,
-              ),
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.settings,
-              ),
-              title: TextResponsive(
-                'Settings',
-                style: optionStyle,
-              ),
-            ),
-          ],
-        ),
-        floatingActionButton: GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => Add_animal(
-                        token: widget.token,
-                      )),
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              height: 60,
-              width: 90,
-              decoration: BoxDecoration(
-                color: Colors.blue,
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Center(
-                  child: TextResponsive(
-                'Add   Animal',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 40,
+              floatingActionButton: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Add_animal(
+                              token: widget.token,
+                            )),
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    height: 60,
+                    width: 90,
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Center(
+                        child: TextResponsive(
+                      'Add   Animal',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 40,
+                      ),
+                    )),
+                  ),
                 ),
-              )),
+              ),
             ),
-          ),
-        ),
-      ),
     );
   }
 }
@@ -400,22 +400,22 @@ class _Animal_listState extends State<Animal_list>
 class Animal_list_card extends StatelessWidget {
   final String asset;
   final String a_tag;
-  final String id;
-  final String gender;
+  final int id;
+  final Gender gender;
   Animal_list_card({this.a_tag, this.asset, this.id, this.gender});
-  col(String s) {
-    if (s == 'DRY') {
-      return Colors.red;
-    } else if (s == 'MILKING') {
-      return Colors.green;
-    } else if (s == 'PREGNANT') {
-      return Colors.yellow;
-    } else if (s == 'MILKING-PREGNANT') {
-      return Colors.grey;
-    } else {
-      return Colors.blue;
-    }
-  }
+//  col(String s) {
+//    if (s == 'DRY') {
+//      return Colors.red;
+//    } else if (s == 'MILKING') {
+//      return Colors.green;
+//    } else if (s == 'PREGNANT') {
+//      return Colors.yellow;
+//    } else if (s == 'MILKING-PREGNANT') {
+//      return Colors.grey;
+//    } else {
+//      return Colors.blue;
+//    }
+//  }
 
   @override
   Widget build(BuildContext context) {
@@ -455,7 +455,7 @@ class Animal_list_card extends StatelessWidget {
                           ),
                         ),
                         TextResponsive(
-                          id.toString().substring(7),
+                          id.toString(),
                           style: TextStyle(
                             fontSize: 40,
                           ),
@@ -470,12 +470,12 @@ class Animal_list_card extends StatelessWidget {
                         height: 40,
                         width: 100,
                         decoration: BoxDecoration(
-                          color: col(gender.substring(11)),
+                          color: Colors.red,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Center(
                             child: TextResponsive(
-                          gender.toString().substring(11),
+                          gender.toString().substring(7),
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 40,
