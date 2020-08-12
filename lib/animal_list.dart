@@ -1,21 +1,27 @@
 import 'dart:convert';
 
 import 'package:channab2day/filter.dart';
+import 'package:channab2day/model/animal_Categoru.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_widgets/responsive_widgets.dart';
 //import 'filterScreen.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'anilistest.dart';
+import 'model/anilistest.dart';
+import 'package:http/http.dart' as http;
 
 class Animal_list extends StatefulWidget {
+  var filter;
+  Animal_list({this.filter});
   @override
   _Animal_listState createState() => _Animal_listState();
 }
 
 class _Animal_listState extends State<Animal_list>
     with SingleTickerProviderStateMixin {
+  bool isSelect = false;
+  Color _color = Colors.blue;
   int _selectedIndex = 1;
   bool selected = false;
   TabController _tabController;
@@ -40,7 +46,20 @@ class _Animal_listState extends State<Animal_list>
   void initState() {
     super.initState();
     getdata();
+    getCategory();
     _tabController = new TabController(length: 3, vsync: this);
+  }
+
+  AnimalCategory animalCategory;
+  getCategory() async {
+    Dio dio = Dio();
+    Response r = await dio.get("https://channab.com/api/all_category/",
+        options: Options(
+            headers: {"token": "50a67c112aff02f32cfefd52c242933b727d28bd"}));
+    // print(r.data);
+    setState(() {
+      animalCategory = animalCategoryFromJson(r.data);
+    });
   }
 
   AnimallistModel animallistModel;
@@ -50,10 +69,31 @@ class _Animal_listState extends State<Animal_list>
     Response r = await dio.get("https://channab.com/api/livestock_listing/",
         options: Options(
             headers: {"token": "50a67c112aff02f32cfefd52c242933b727d28bd"}));
-    print(r.data);
-    setState(() {
-      animallistModel = animallistModelFromJson(r.data);
-    });
+
+    if (widget.filter != null) {
+      String url = "https://channab.com/api/search_listing/";
+      Map<String, String> headers = <String, String>{
+        'token': "50a67c112aff02f32cfefd52c242933b727d28bd"
+      };
+      Map<String, String> requestBody = widget.filter;
+      var uri = Uri.parse(url);
+      var request = http.MultipartRequest('POST', uri)
+        ..headers.addAll(headers)
+        ..fields.addAll(requestBody);
+
+      var res = await request.send();
+      http.Response response = await http.Response.fromStream(res);
+      // var data = json.decode(response.body);
+      setState(() {
+        print('tis is ${widget.filter}');
+        animallistModel = animallistModelFromJson(response.body);
+        //  print('hi    $animallistModel');
+      });
+    } else {
+      setState(() {
+        animallistModel = animallistModelFromJson(r.data);
+      });
+    }
   }
 
   @override
@@ -168,34 +208,71 @@ class _Animal_listState extends State<Animal_list>
                   ),
                   Container(
                     height: 50,
-                    child: ListView.builder(
-                        physics: NeverScrollableScrollPhysics(),
-                        scrollDirection: Axis.horizontal,
-                        shrinkWrap: true,
-                        itemCount: animallistModel.allAnimalList.length,
-                        itemBuilder: (BuildContext ctxt, int index) {
-                          AllAnimalList items =
-                              animallistModel.allAnimalList[index];
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Container(
-                              height: 40,
-                              width: 50,
-                              decoration: BoxDecoration(
-                                color: Colors.blue,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Center(
-                                  child: TextResponsive(
-                                items.animalType.toString().substring(11),
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 40,
-                                ),
-                              )),
+                    width: 2000.w,
+                    child:
+                        ListView(scrollDirection: Axis.horizontal, children: [
+                      InkWell(
+                        onTap: () {
+                          setState(() {
+                            isSelect = !isSelect;
+                          });
+                          print(isSelect);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            height: 40,
+                            width: 50,
+                            decoration: BoxDecoration(
+                              color: (isSelect) ? _color : Colors.white,
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                          );
-                        }),
+                            child: Center(
+                                child: TextResponsive(
+                              'All',
+                              style: TextStyle(
+                                color: (isSelect) ? Colors.white : Colors.black,
+                                fontSize: 40,
+                              ),
+                            )),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 80,
+                        width: 2000.w,
+                        child: ListView.builder(
+                            physics: NeverScrollableScrollPhysics(),
+                            scrollDirection: Axis.horizontal,
+                            shrinkWrap: true,
+                            itemCount: animalCategory.allCategories.length,
+                            itemBuilder: (BuildContext ctxt, int index) {
+                              AllCategory items =
+                                  animalCategory.allCategories[index];
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Container(
+                                  height: 40,
+                                  width: 50,
+                                  decoration: BoxDecoration(
+                                    color: (isSelect) ? _color : Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Center(
+                                      child: TextResponsive(
+                                    items.nameOfCategory,
+                                    style: TextStyle(
+                                      color: (isSelect)
+                                          ? Colors.white
+                                          : Colors.black,
+                                      fontSize: 40,
+                                    ),
+                                  )),
+                                ),
+                              );
+                            }),
+                      ),
+                    ]),
                   ),
                   Expanded(
                     child: ListView(

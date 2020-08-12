@@ -1,5 +1,7 @@
 import 'package:channab2day/add_animal.dart';
+import 'package:channab2day/animal_details.dart';
 import 'package:channab2day/animal_list.dart';
+import 'package:channab2day/filter.dart';
 import 'package:channab2day/sign_in.dart';
 import 'package:channab2day/sign_up.dart';
 import 'package:flutter/material.dart';
@@ -20,12 +22,14 @@ class MyApp extends StatelessWidget {
       width: 1080, // Optional
       allowFontScaling: true,
     );
-    return MaterialApp(initialRoute: 'Animal_list', routes: {
+    return MaterialApp(initialRoute: 'Animal_details', routes: {
       'signin': (context) => SignIn(),
       'SignUp': (context) => SignUp(),
       'Add_animal': (context) => Add_animal(),
       'User_Profile': (context) => User_Profile(),
       'Animal_list': (context) => Animal_list(),
+      'Animal_details': (context) => Animal_details(),
+      'FilterScreen': (context) => FilterScreen(),
     });
   }
 }

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:android_intent/android_intent.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:channab2day/note.dart';
+
 import 'package:dio/dio.dart';
 import 'package:mime/mime.dart';
 import 'package:flutter/material.dart';
