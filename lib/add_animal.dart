@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:channab2day/animal_list.dart';
+import 'package:channab2day/model/animal_Categoru.dart';
 import 'package:channab2day/model/note.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -21,6 +22,17 @@ class Add_animal extends StatefulWidget {
 }
 
 class _Add_animalState extends State<Add_animal> {
+  AnimalCategory animalCategory;
+  getCategory() async {
+    Dio dio = Dio();
+    Response r = await dio.get("https://channab.com/api/all_category/",
+        options: Options(headers: {"token": widget.token}));
+    // print(r.data);
+    setState(() {
+      animalCategory = animalCategoryFromJson(r.data);
+    });
+  }
+
   TextEditingController _tagController = TextEditingController();
   File _selectedFile;
   List<Note> _notes = List<Note>();
@@ -98,11 +110,7 @@ class _Add_animalState extends State<Add_animal> {
 
   @override
   void initState() {
-    // fetchNotes().then((value) {
-    //   setState(() {
-    //     _notes.addAll(value);
-    //   });
-    // });
+    getCategory();
     super.initState();
   }
 
@@ -251,43 +259,27 @@ class _Add_animalState extends State<Add_animal> {
                         fontSize: 120.h,
                       ),
                     ),
-                    trailing: DropdownButton(
-                        hint: TextResponsive(
-                          'Category',
-                          style: TextStyle(
-                            fontSize: 120.h,
-                          ),
-                        ),
-                        underline: Container(),
-                        value: currentCat,
-                        items: [
-                          DropdownMenuItem(
-                            child: Text("Cow"),
-                            value: "Cow",
-                          ),
-                          DropdownMenuItem(
-                            child: Text("Buffalo"),
-                            value: "Buffalo",
-                          ),
-                          DropdownMenuItem(
-                            child: Text("Goat"),
-                            value: "Goat",
-                          ),
-                          DropdownMenuItem(
-                            child: Text("Sheep"),
-                            value: "Sheep",
-                          ),
-                          DropdownMenuItem(
-                            child: Text("Horse"),
-                            value: "Horse",
-                          ),
-                        ],
-                        onChanged: (value) {
-                          setState(() {
-                            currentCat = value;
-                            print(currentCat);
-                          });
-                        }),
+                    trailing: animalCategory == null
+                        ? Center(child: CircularProgressIndicator())
+                        : DropdownButton<String>(
+                            underline: Container(),
+                            hint: Text("Category"),
+                            value: currentCat,
+                            items: animalCategory.allCategories
+                                .map((e) => DropdownMenuItem<String>(
+                                      child: Text(e.nameOfCategory),
+                                      value: e.nameOfCategory,
+                                      onTap: () {
+                                        //getParent(e.id);
+                                      },
+                                    ))
+                                .toList(),
+                            onChanged: (String value) {
+                              setState(() {
+                                print(value);
+                                currentCat = value;
+                              });
+                            }),
                   ),
                 ),
                 Padding(
@@ -349,7 +341,7 @@ class _Add_animalState extends State<Add_animal> {
                     String url =
                         "https://channab.com/" + "api/live_animal_Add/";
                     Map<String, String> headers = <String, String>{
-                      'token': "50a67c112aff02f32cfefd52c242933b727d28bd"
+                      'token': widget.token
                     };
                     Map<String, String> requestBody = body;
                     var uri = Uri.parse(url);

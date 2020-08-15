@@ -42,6 +42,9 @@ dependencies:
   url_launcher: ^5.5.0
   access_settings_menu: ^0.0.1
   android_intent: ^0.3.7+2
+  grouped_buttons: ^1.0.4
+  flutter_multiselect:
+
 
 dev_dependencies:
   flutter_test:

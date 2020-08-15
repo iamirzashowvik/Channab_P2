@@ -9,6 +9,8 @@ import 'animal_list.dart';
 List<int> sel = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 class FilterScreen extends StatefulWidget {
+  final String token;
+  FilterScreen({this.token});
   @override
   _FilterScreenState createState() => _FilterScreenState();
 }
@@ -176,6 +178,7 @@ class _FilterScreenState extends State<FilterScreen> {
                     MaterialPageRoute(
                         builder: (context) => Animal_list(
                               filter: body,
+                              token: widget.token,
                             )),
                   );
                 },

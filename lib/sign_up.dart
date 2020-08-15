@@ -8,6 +8,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:responsive_widgets/responsive_widgets.dart';
 import 'package:dio/dio.dart';
 
+import 'sign_in.dart';
+
 class SignUp extends StatefulWidget {
   @override
   _SignUpState createState() => _SignUpState();
@@ -153,7 +155,13 @@ class _SignUpState extends State<SignUp> {
                             hintText: 'Password',
                             suffixIcon: GestureDetector(
                                 onTap: () {
-                                  setState(() {});
+                                  setState(() {
+                                    if (obs == true) {
+                                      obs = false;
+                                    } else {
+                                      obs = true;
+                                    }
+                                  });
                                 },
                                 child: Icon(Icons.remove_red_eye)),
                           ),
@@ -193,8 +201,7 @@ class _SignUpState extends State<SignUp> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) =>
-                                User_Profile(token: userToken)),
+                            builder: (context) => SignIn(tokeen: userToken)),
                       );
                     } else {
                       Navigator.push(
@@ -231,8 +238,14 @@ class _SignUpState extends State<SignUp> {
                       ),
                     ),
                     GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => SignIn()),
+                        );
+                      },
                       child: TextResponsive(
-                        'Sign In',
+                        '  Sign In',
                         style: TextStyle(fontSize: 45, color: Colors.green),
                       ),
                     )

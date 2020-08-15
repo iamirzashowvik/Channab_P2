@@ -6,8 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:responsive_widgets/responsive_widgets.dart';
 import 'add_animal.dart';
+import 'sign_up.dart';
+import 'animal_details.dart';
 
 class SignIn extends StatefulWidget {
+  final String tokeen;
+  SignIn({this.tokeen});
   @override
   _SignInState createState() => _SignInState();
 }
@@ -150,7 +154,13 @@ class _SignInState extends State<SignIn> {
                           hintText: 'Password',
                           suffixIcon: GestureDetector(
                               onTap: () {
-                                setState(() {});
+                                setState(() {
+                                  if (obs == true) {
+                                    obs = false;
+                                  } else {
+                                    obs = true;
+                                  }
+                                });
                               },
                               child: Icon(Icons.remove_red_eye)),
                         ),
@@ -189,7 +199,7 @@ class _SignInState extends State<SignIn> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => Animal_list(
+                          builder: (context) => Animal_details(
                                 token: userToken,
                               )),
                     );
@@ -228,6 +238,12 @@ class _SignInState extends State<SignIn> {
                     ),
                   ),
                   GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SignUp()),
+                      );
+                    },
                     child: TextResponsive(
                       '  Sign Up',
                       style: TextStyle(

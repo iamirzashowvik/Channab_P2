@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       width: 1080, // Optional
       allowFontScaling: true,
     );
-    return MaterialApp(initialRoute: 'signin', routes: {
+    return MaterialApp(initialRoute: 'SignUp', routes: {
       'signin': (context) => SignIn(),
       'SignUp': (context) => SignUp(),
       'Add_animal': (context) => Add_animal(),

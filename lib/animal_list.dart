@@ -35,7 +35,8 @@ class _Animal_listState extends State<Animal_list>
   Color cc = Color(0xffff718b);
   Map<String, double> dataMap = Map();
   bool swvalue = false;
-
+  String id = '';
+  //static String token = widget.token;
   static const TextStyle optionStyle = TextStyle(
     fontSize: 35,
     //  color: const Color(0x4d130f10),
@@ -134,22 +135,25 @@ class _Animal_listState extends State<Animal_list>
                                 ),
                               ),
                             ),
-                            GestureDetector(
-                              onTap: () {
-                                showModalBottomSheet(
-                                    context: context,
-                                    isScrollControlled: true,
-                                    builder: (context) => SingleChildScrollView(
-                                            child: Container(
-                                          padding: EdgeInsets.only(
-                                              bottom: MediaQuery.of(context)
-                                                  .viewInsets
-                                                  .bottom),
-                                          child: FilterScreen(),
-                                        )));
-                              },
-                              child: Padding(
-                                padding: EdgeInsets.all(15.0),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: GestureDetector(
+                                onTap: () {
+                                  showModalBottomSheet(
+                                      context: context,
+                                      isScrollControlled: true,
+                                      builder: (context) =>
+                                          SingleChildScrollView(
+                                              child: Container(
+                                            padding: EdgeInsets.only(
+                                                bottom: MediaQuery.of(context)
+                                                    .viewInsets
+                                                    .bottom),
+                                            child: FilterScreen(
+                                              token: widget.token,
+                                            ),
+                                          )));
+                                },
                                 child: TextResponsive(
                                   'Filter',
                                   style: TextStyle(
@@ -249,25 +253,30 @@ class _Animal_listState extends State<Animal_list>
                             itemBuilder: (BuildContext ctxt, int index) {
                               AllCategory items =
                                   animalCategory.allCategories[index];
-                              return Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Container(
-                                  height: 40,
-                                  width: 50,
-                                  decoration: BoxDecoration(
-                                    color: (isSelect) ? _color : Colors.white,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Center(
-                                      child: TextResponsive(
-                                    items.nameOfCategory,
-                                    style: TextStyle(
-                                      color: (isSelect)
-                                          ? Colors.white
-                                          : Colors.black,
-                                      fontSize: 40,
+                              return GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    id = items.nameOfCategory;
+                                  });
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Container(
+                                    height: 40,
+                                    width: 50,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(10),
                                     ),
-                                  )),
+                                    child: Center(
+                                        child: TextResponsive(
+                                      items.nameOfCategory,
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 40,
+                                      ),
+                                    )),
+                                  ),
                                 ),
                               );
                             }),
@@ -293,12 +302,14 @@ class _Animal_listState extends State<Animal_list>
                                   itemBuilder: (BuildContext ctxt, int index) {
                                     AllAnimalList items =
                                         animallistModel.allAnimalList[index];
-                                    return Animal_list_card(
-                                      a_tag: items.animalTag,
-                                      id: items.id,
-                                      asset: items.image,
-                                      gender: items.gender,
-                                    );
+                                    if (id == '') {
+                                      return Animal_list_card(
+                                        a_tag: items.animalTag,
+                                        id: items.id,
+                                        asset: items.image,
+                                        gender: items.animalType,
+                                      );
+                                    }
                                   }),
                               Text("data2"),
                               Text("data3")
@@ -401,7 +412,7 @@ class Animal_list_card extends StatelessWidget {
   final String asset;
   final String a_tag;
   final int id;
-  final Gender gender;
+  final String gender;
   Animal_list_card({this.a_tag, this.asset, this.id, this.gender});
 //  col(String s) {
 //    if (s == 'DRY') {
@@ -467,15 +478,15 @@ class Animal_list_card extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Container(
-                        height: 40,
-                        width: 100,
+                        height: 35,
+                        width: 60,
                         decoration: BoxDecoration(
                           color: Colors.red,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Center(
                             child: TextResponsive(
-                          gender.toString().substring(7),
+                          gender,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 40,

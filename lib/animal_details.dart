@@ -5,7 +5,7 @@ import 'package:channab2day/model/ad_tab_Data.dart';
 import 'package:channab2day/model/char_card.dart';
 import 'package:http/http.dart' as http;
 import 'package:channab2day/add_animal.dart';
-
+import 'model/del/del_health.dart';
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:flutter/material.dart';
@@ -15,16 +15,19 @@ import 'package:image_picker/image_picker.dart';
 import 'package:responsive_widgets/responsive_widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mime/mime.dart';
+import 'model/ADTab2.dart';
+//import 'package:flutter_multiselect/flutter_multiselect.dart';
 
 class Animal_details extends StatefulWidget {
+  final String token;
+  Animal_details({this.token});
   @override
   _Animal_detailsState createState() => _Animal_detailsState();
 }
 
 class _Animal_detailsState extends State<Animal_details>
     with SingleTickerProviderStateMixin {
-  String token = "50a67c112aff02f32cfefd52c242933b727d28bd";
-  String id = "67";
+  String id = "64";
   showAlertDialog4(BuildContext context) {
     // set up the list options
     String des;
@@ -53,7 +56,9 @@ class _Animal_detailsState extends State<Animal_details>
 
             SharedPreferences pref = await SharedPreferences.getInstance();
             String url = "https://channab.com/api/description_popup/";
-            Map<String, String> headers = <String, String>{'token': token};
+            Map<String, String> headers = <String, String>{
+              'token': widget.token
+            };
             Map<String, String> requestBody = body;
             var uri = Uri.parse(url);
             var request = http.MultipartRequest('POST', uri)
@@ -89,6 +94,17 @@ class _Animal_detailsState extends State<Animal_details>
     );
   }
 
+  static const TextStyle optionStyle = TextStyle(
+    fontSize: 35,
+    //  color: const Color(0x4d130f10),
+  );
+  int _selectedIndex = 1;
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   String kIanimaltag;
   String kIcoP;
   String kIage;
@@ -97,17 +113,7 @@ class _Animal_detailsState extends State<Animal_details>
   String kIbreed;
   String kIdop;
   showAlertDialog5(BuildContext context) {
-    // set up the list options
     int i = 0;
-
-    // String kIanimaltag;
-    // String kIcoP;
-    // String kIage;
-    // String kIgender;
-    // String kIcurentType;
-    // String kIbreed;
-    // String kIdop;
-    // set up the SimpleDialog
     SimpleDialog dialog = SimpleDialog(
       title: const Text('Edit Animal'),
       children: <Widget>[
@@ -356,7 +362,9 @@ class _Animal_detailsState extends State<Animal_details>
             if (tap == 0) {
               SharedPreferences pref = await SharedPreferences.getInstance();
               String url = "https://channab.com/api/main_animal_info_update/";
-              Map<String, String> headers = <String, String>{'token': token};
+              Map<String, String> headers = <String, String>{
+                'token': widget.token
+              };
               Map<String, String> requestBody = body;
               var uri = Uri.parse(url);
               var request = http.MultipartRequest('POST', uri)
@@ -373,7 +381,9 @@ class _Animal_detailsState extends State<Animal_details>
                   contentType: MediaType(mineData[0], mineData[1]));
               SharedPreferences pref = await SharedPreferences.getInstance();
               String url = "https://channab.com/api/main_animal_info_update/";
-              Map<String, String> headers = <String, String>{'token': token};
+              Map<String, String> headers = <String, String>{
+                'token': widget.token
+              };
               Map<String, String> requestBody = body;
               var uri = Uri.parse(url);
               var request = http.MultipartRequest('POST', uri)
@@ -519,16 +529,17 @@ class _Animal_detailsState extends State<Animal_details>
   String activeButton;
   TabController _tabController;
   AdTab _adTab;
+  //AdTab2 _adTab2;
   _getdata() async {
     Dio dio = Dio();
 //default is
     Response r = await dio.get(
         "https://channab.com/api/view_particular_element/?product_id=$id",
-        options: Options(
-            headers: {"token": "50a67c112aff02f32cfefd52c242933b727d28bd"}));
+        options: Options(headers: {"token": widget.token}));
     print(r.data);
     setState(() {
       _adTab = adTabFromJson(r.data);
+      // _adTab2 = adTab2FromJson(r.data);
     });
   }
 
@@ -572,7 +583,9 @@ class _Animal_detailsState extends State<Animal_details>
                 contentType: MediaType(mineData[0], mineData[1]));
             SharedPreferences pref = await SharedPreferences.getInstance();
             String url = "https://channab.com/api/gallery_popup/";
-            Map<String, String> headers = <String, String>{'token': token};
+            Map<String, String> headers = <String, String>{
+              'token': widget.token
+            };
             Map<String, String> requestBody = body;
             var uri = Uri.parse(url);
             var request = http.MultipartRequest('POST', uri)
@@ -671,7 +684,9 @@ class _Animal_detailsState extends State<Animal_details>
 
             SharedPreferences pref = await SharedPreferences.getInstance();
             String url = "https://channab.com/api/health_popup/";
-            Map<String, String> headers = <String, String>{'token': token};
+            Map<String, String> headers = <String, String>{
+              'token': widget.token
+            };
             Map<String, String> requestBody = body;
             var uri = Uri.parse(url);
             var request = http.MultipartRequest('POST', uri)
@@ -710,57 +725,142 @@ class _Animal_detailsState extends State<Animal_details>
   showAlertDialog1(BuildContext context) {
     // set up the list options
     int i = 0;
+    List _selecteCategorys = List();
+    String currentCat;
+    String currentCatF;
+    String c;
+    List<String> count = [];
+    List<String> gg = [];
     // set up the SimpleDialog
     SimpleDialog dialog = SimpleDialog(
       title: const Text('Add Family'),
       children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text('Male Parent'),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-            onChanged: (value) {
-              hTitle = value;
-            },
-            decoration: InputDecoration(
-              hintText: 'Male Parent',
+        Column(
+          children: <Widget>[
+            TextResponsive(
+              'Male Parent',
+              style: TextStyle(
+                fontSize: 120.h,
+              ),
             ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text('Female Parent'),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-            onChanged: (value) {
-              hCost = value;
-            },
-            decoration: InputDecoration(
-              hintText: 'Female Parent',
+            Container(
+              child: DropdownButton<dynamic>(
+                  underline: Container(),
+                  hint: Text("Male Parent"),
+                  value: currentCat,
+                  items: _adTab.allMaleUserCanSelect
+                      .map((e) => DropdownMenuItem<dynamic>(
+                            child: Text(e["animal_tag"].toString()),
+                            value: e,
+                            onTap: () {},
+                          ))
+                      .toList(),
+                  onChanged: (dynamic value) {
+                    setState(() {
+                      print(value);
+                      currentCat = value.toString();
+                      showAlertDialog1(context);
+                      print(currentCat);
+                    });
+                  }),
             ),
-          ),
+          ],
         ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text('Select Child'),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-            onChanged: (value) {
-              hContent = value;
-            },
-            decoration: InputDecoration(
-              hintText: 'Add Content',
+        Column(
+          children: <Widget>[
+            TextResponsive(
+              'Female Parent',
+              style: TextStyle(
+                fontSize: 120.h,
+              ),
             ),
-          ),
+            Container(
+              width: 700,
+              child: DropdownButton<dynamic>(
+                  underline: Container(),
+                  hint: Text("Female Parent"),
+                  value: currentCatF,
+                  items: _adTab.allFemaleUserCanSelect
+                      .map((e) => DropdownMenuItem<dynamic>(
+                            child: Text(e["animal_tag"].toString()),
+                            value: e,
+                            onTap: () {},
+                          ))
+                      .toList(),
+                  onChanged: (dynamic value) {
+                    setState(() {
+                      print(value);
+                      currentCatF = value.toString();
+                      showAlertDialog1(context);
+                      print(currentCatF);
+                    });
+                  }),
+            ),
+          ],
+        ),
+        Container(
+          width: 700,
+          child: DropdownButton<dynamic>(
+              underline: Container(),
+              hint: Text("Child"),
+              value: currentCatF,
+              items: _adTab.allChildsUserCanSelect
+                  .map((e) => DropdownMenuItem<dynamic>(
+                        child: Row(
+                          children: <Widget>[
+                            Checkbox(
+                              onChanged: (value) {
+                                count.add(_adTab.allChildsUserCanSelect
+                                    .map(e["id"])
+                                    .toString());
+                              },
+                              value: false,
+                            ),
+                            Text(e["animal_tag"].toString()),
+                          ],
+                        ),
+                        value: e,
+                        onTap: () {},
+                      ))
+                  .toList(),
+              onChanged: (dynamic value) {}),
         ),
         GestureDetector(
-          onTap: () async {},
+          onTap: () async {
+            String s = count.join(', ');
+            Map<String, String> body = {
+              "family_particular_id": id,
+              "male_parent": currentCat,
+              "female_parent": currentCatF,
+              "child_select": s
+            };
+
+            //SharedPreferences pref = await SharedPreferences.getInstance();
+            String url = "https://channab.com/api/add_child_api/";
+            Map<String, String> headers = <String, String>{
+              'token': widget.token
+            };
+            Map<String, String> requestBody = body;
+            var uri = Uri.parse(url);
+            var request = http.MultipartRequest('POST', uri)
+              ..headers.addAll(headers)
+              ..fields.addAll(requestBody);
+
+            var res = await request.send();
+            http.Response response = await http.Response.fromStream(res);
+            var data = json.decode(response.body);
+            print(data);
+            if (response.statusCode == 200) {
+              setState(() {
+                // i = 1;
+                //Navigator.pop(context);
+              });
+            } else {
+              setState(() {
+                // i = 0;
+              });
+            }
+          },
           child: Char_card(name: 'Save Information', cc: Colors.blueAccent),
         ),
         GestureDetector(
@@ -832,7 +932,9 @@ class _Animal_detailsState extends State<Animal_details>
 
             SharedPreferences pref = await SharedPreferences.getInstance();
             String url = "https://channab.com/api/milking_popup/";
-            Map<String, String> headers = <String, String>{'token': token};
+            Map<String, String> headers = <String, String>{
+              'token': widget.token
+            };
             Map<String, String> requestBody = body;
             var uri = Uri.parse(url);
             var request = http.MultipartRequest('POST', uri)
@@ -882,8 +984,7 @@ class _Animal_detailsState extends State<Animal_details>
     Dio dio = Dio();
     Response r = await dio.get(
         "https://channab.com/api/deactivate_animal/?id=$id",
-        options: Options(
-            headers: {"token": "50a67c112aff02f32cfefd52c242933b727d28bd"}));
+        options: Options(headers: {"token": widget.token}));
     // print(r.data);
     setState(() {
       _activeStatus = activeStatusFromJson(r.data);
@@ -905,139 +1006,266 @@ class _Animal_detailsState extends State<Animal_details>
       allowFontScaling: true,
       child: SafeArea(
         child: Scaffold(
-          appBar: AppBar(
-            actions: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: GestureDetector(
-                    onTap: () {
-                      showAlertDialog5(context);
-                    },
-                    child: Icon(Icons.edit)),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: CircleAvatar(
-                  backgroundColor: Colors.green,
-                  child: Icon(
-                    Icons.notifications_active,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              Switch(
-                activeColor: Colors.white,
-                value: isSwitch,
-                onChanged: (value) {
-                  setState(() {
-                    isSwitch = value;
-                  });
-                },
-              )
-            ],
-          ),
-          backgroundColor: Colors.white60,
+          backgroundColor: Colors.white,
+
+          //backgroundColor: Colors.white60,
           body: _adTab == null
               ? Center(child: CircularProgressIndicator())
               : Column(
                   children: <Widget>[
+                    Container(
+                      height: 150,
+                      width: 1000.w,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Column(
+                            children: <Widget>[
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: CircleAvatar(
+                                  backgroundImage: NetworkImage(
+                                      _adTab.productDetails.productImage),
+                                  radius: 50,
+                                ),
+                              ),
+                              TextResponsive(
+                                _adTab.productDetails.animalTag,
+                                style: TextStyle(
+                                    fontSize: 50, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                          Container(
+                            height: 150,
+                            width: 680.w,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: <Widget>[
+                                    Container(
+                                      height: 40,
+                                      width: 90,
+                                      decoration: BoxDecoration(
+                                          color: Color(0xff00B22D),
+                                          borderRadius:
+                                              BorderRadius.circular(20)),
+                                      child: Center(
+                                        child: TextResponsive(
+                                          'Age ${_adTab.productDetails.ageInMonth} Month'
+                                              .toString(),
+                                          style: TextStyle(
+                                              fontSize: 40,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      height: 40,
+                                      width: 70,
+                                      decoration: BoxDecoration(
+                                          color: Color(0xff00B22D),
+                                          borderRadius:
+                                              BorderRadius.circular(20)),
+                                      child: Center(
+                                        child: TextResponsive(
+                                          _adTab.productDetails.animalGender,
+                                          style: TextStyle(
+                                              fontSize: 40,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: <Widget>[
+                                    Container(
+                                      height: 40,
+                                      width: 90,
+                                      decoration: BoxDecoration(
+                                          color: Color(0xff00B22D),
+                                          borderRadius:
+                                              BorderRadius.circular(20)),
+                                      child: Center(
+                                        child: TextResponsive(
+                                          _adTab.productDetails.animalType,
+                                          style: TextStyle(
+                                              fontSize: 40,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      height: 40,
+                                      width: 70,
+                                      decoration: BoxDecoration(
+                                          color: Color(0xff00B22D),
+                                          borderRadius:
+                                              BorderRadius.circular(20)),
+                                      child: Center(
+                                        child: TextResponsive(
+                                          isSwitch == true
+                                              ? 'Active'
+                                              : 'Disabled',
+                                          style: TextStyle(
+                                              fontSize: 40,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: <Widget>[
+                        GestureDetector(
+                          onTap: () {
+                            if (_tabController.index == 0) {
+                              showAlertDialog0(context);
+                            } else if (_tabController.index == 1) {
+                              showAlertDialog1(context);
+                            } else if (_tabController.index == 2) {
+                              showAlertDialog2(context);
+                            } else if (_tabController.index == 3) {
+                              showAlertDialog3(context);
+                            } else if (_tabController.index == 4) {
+                              showAlertDialog4(context);
+                            }
+                          },
+                          child: CircleAvatar(
+                              backgroundColor: Color(0xff00B22D),
+                              child: Icon(
+                                Icons.add,
+                                color: Colors.white,
+                              )),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: GestureDetector(
+                              onTap: () {
+                                showAlertDialog5(context);
+                              },
+                              child: CircleAvatar(
+                                  backgroundColor: Color(0xff00B22D),
+                                  child: Icon(
+                                    Icons.edit,
+                                    color: Colors.white,
+                                  ))),
+                        ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: CircleAvatar(
-                            backgroundImage: NetworkImage(
-                                _adTab.productDetails.productImage),
-                            radius: 50,
+                            backgroundColor: Color(0xff00B22D),
+                            child: Icon(
+                              Icons.notifications_active,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
-                        Column(
-                          children: <Widget>[
-                            Row(
-                              children: <Widget>[
-                                // TextResponsive(
-                                //   _adTab,
-                                //   style: TextStyle(
-                                //     fontSize: 35,
-                                //   ),
-                                // ),
-                              ],
-                            )
-                          ],
+                        Switch(
+                          activeTrackColor: Color(0xff00B22D),
+                          activeColor: Colors.white,
+                          value: isSwitch,
+                          onChanged: (value) {
+                            setState(() {
+                              isSwitch = value;
+                            });
+                          },
                         )
                       ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
+                    Divider(
+                      thickness: 1,
+                    ),
+                    DefaultTabController(
+                      initialIndex: 0,
+                      // The number of tabs / content sections to display.
+                      length: 5,
+                      child: Center(
+                        child: TabBar(
+                          labelColor: Colors.white,
+                          isScrollable: true,
+                          indicator: BoxDecoration(
+                            color: Color(0xff00B22D),
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                          unselectedLabelColor: selectedColor2,
+                          controller: _tabController,
+                          tabs: [
+                            Tab(
+                              child: Center(
+                                child: TextResponsive(
+                                  'Health',
+                                  style: TextStyle(
+                                    fontSize: 35,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Tab(
+                              child: Center(
+                                child: TextResponsive(
+                                  'Family',
+                                  style: TextStyle(
+                                    fontSize: 35,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Tab(
+                              child: Center(
+                                child: TextResponsive(
+                                  'Milking',
+                                  style: TextStyle(
+                                    fontSize: 35,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Tab(
+                              child: Center(
+                                child: TextResponsive(
+                                  'Gallery',
+                                  style: TextStyle(
+                                    fontSize: 35,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Tab(
+                              child: Center(
+                                child: TextResponsive(
+                                  'Description',
+                                  style: TextStyle(
+                                    fontSize: 35,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        height: 80,
-                        child: DefaultTabController(
-                          initialIndex: 0,
-                          // The number of tabs / content sections to display.
-                          length: 5,
-                          child: TabBar(
-                            labelColor: Colors.blue,
-                            unselectedLabelColor: selectedColor2,
-                            controller: _tabController,
-                            tabs: [
-                              Tab(
-                                child: Center(
-                                  child: TextResponsive(
-                                    'Health',
-                                    style: TextStyle(
-                                      fontSize: 35,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Tab(
-                                child: Center(
-                                  child: TextResponsive(
-                                    'Family',
-                                    style: TextStyle(
-                                      fontSize: 35,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Tab(
-                                child: Center(
-                                  child: TextResponsive(
-                                    'Milking',
-                                    style: TextStyle(
-                                      fontSize: 35,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Tab(
-                                child: Center(
-                                  child: TextResponsive(
-                                    'Gallery',
-                                    style: TextStyle(
-                                      fontSize: 35,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Tab(
-                                child: Center(
-                                  child: TextResponsive(
-                                    'Description',
-                                    style: TextStyle(
-                                      fontSize: 23,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ), // Complete this code in the next step.
-                        ),
-                      ),
+                      ), // Complete this code in the next step.
+                    ),
+                    Divider(
+                      thickness: 1,
                     ),
                     Expanded(
                       child: ListView(
@@ -1049,26 +1277,487 @@ class _Animal_detailsState extends State<Animal_details>
                             width: 1000.w,
                             child: TabBarView(
                               children: [
+                                Column(
+                                  children: <Widget>[
+                                    ListView.builder(
+                                        physics: NeverScrollableScrollPhysics(),
+                                        scrollDirection: Axis.vertical,
+                                        shrinkWrap: true,
+                                        itemCount:
+                                            _adTab.allHealthRecordList.length,
+                                        itemBuilder:
+                                            (BuildContext ctxt, int index) {
+                                          AllHealthRecordList item =
+                                              _adTab.allHealthRecordList[index];
+                                          return Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              child: Column(
+                                                children: <Widget>[
+                                                  Row(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceAround,
+                                                    children: <Widget>[
+                                                      Text(item.tagName),
+                                                      Text(
+                                                          'Cost : ${item.costAmount.toString()} PKR'),
+                                                      Text(item.ago),
+                                                      GestureDetector(
+                                                        onTap: () async {
+                                                          Dio dio = Dio();
+                                                          DelHealth del_health;
+                                                          Response r = await dio.get(
+                                                              "https://channab.com/api/health_delete/?title_id=${item.id}",
+                                                              options: Options(
+                                                                  headers: {
+                                                                    "token":
+                                                                        widget
+                                                                            .token
+                                                                  }));
+                                                          print(r.data);
+                                                          setState(() {
+                                                            del_health =
+                                                                delHealthFromJson(
+                                                                    r.data);
+                                                          });
+                                                          if (del_health
+                                                                  .status ==
+                                                              200) {
+                                                            Navigator.push(
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                  builder:
+                                                                      (context) =>
+                                                                          Animal_details(
+                                                                            token:
+                                                                                widget.token,
+                                                                          )),
+                                                            );
+                                                          }
+                                                        },
+                                                        child:
+                                                            Icon(Icons.delete),
+                                                      )
+                                                    ],
+                                                  ),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: TextResponsive(
+                                                      item.textDescription,
+                                                      style: TextStyle(
+                                                          fontSize: 40),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        }),
+                                  ],
+                                ),
                                 Text("data2"),
-                                // ListView.builder(
-                                //   physics: NeverScrollableScrollPhysics(),
-                                //   scrollDirection: Axis.vertical,
-                                //   shrinkWrap: true,
-                                //   itemCount: 5,
-                                // itemBuilder: (BuildContext ctxt, int index) {
-                                //   AllAnimalList items =
-                                //       animallistModel.allAnimalList[index];
-                                // return Animal_list_card(
-                                //   a_tag: items.animalTag,
-                                //   id: items.id,
-                                //   asset: items.image,
-                                //   gender: items.gender,
-                                // );}
-                                //),
-                                Text("data2"),
-                                Text("data3"),
-                                Text("data4"),
-                                Text("data5"),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    children: <Widget>[
+                                      Container(
+                                        color: Colors.white,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          children: <Widget>[
+                                            Container(
+                                                height: 60,
+                                                width: 150.w,
+                                                child: Center(
+                                                  child: TextResponsive(
+                                                    "DATE",
+                                                    maxLines: 1,
+                                                    style: TextStyle(
+                                                      fontSize: 30,
+                                                    ),
+                                                  ),
+                                                )),
+                                            Container(
+                                                height: 60,
+                                                width: 150.w,
+                                                child: Center(
+                                                    child: TextResponsive(
+                                                  "MORNING",
+                                                  maxLines: 1,
+                                                  style: TextStyle(
+                                                    fontSize: 30,
+                                                  ),
+                                                ))),
+                                            Container(
+                                                height: 60,
+                                                width: 150.w,
+                                                child: Center(
+                                                    child: TextResponsive(
+                                                  "EVENING",
+                                                  maxLines: 1,
+                                                  style: TextStyle(
+                                                    fontSize: 30,
+                                                  ),
+                                                ))),
+                                            Container(
+                                                height: 60,
+                                                width: 150.w,
+                                                child: Center(
+                                                    child: TextResponsive(
+                                                  "TOTAL",
+                                                  maxLines: 1,
+                                                  style: TextStyle(
+                                                    fontSize: 30,
+                                                  ),
+                                                ))),
+                                            Container(
+                                                height: 60,
+                                                width: 150.w,
+                                                child: Center(
+                                                    child: TextResponsive(
+                                                  "ACTIONS",
+                                                  style: TextStyle(
+                                                    fontSize: 30,
+                                                  ),
+                                                  maxLines: 1,
+                                                ))),
+                                          ],
+                                        ),
+                                      ),
+                                      ListView.builder(
+                                          physics:
+                                              NeverScrollableScrollPhysics(),
+                                          scrollDirection: Axis.vertical,
+                                          shrinkWrap: true,
+                                          itemCount: _adTab.milkAllRecord
+                                              .milkDataByRow.length,
+                                          itemBuilder:
+                                              (BuildContext ctxt, int index) {
+                                            return Container(
+                                              color: Colors.white,
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceAround,
+                                                children: <Widget>[
+                                                  Container(
+                                                      height: 60,
+                                                      width: 150.w,
+                                                      child: Center(
+                                                          child: TextResponsive(
+                                                        _adTab
+                                                            .milkAllRecord
+                                                            .milkDataByRow[
+                                                                index]
+                                                            .createdOn,
+                                                        maxLines: 1,
+                                                        style: TextStyle(
+                                                          fontSize: 25,
+                                                        ),
+                                                      ))),
+                                                  Container(
+                                                      height: 60,
+                                                      width: 150.w,
+                                                      child: Center(
+                                                          child: TextResponsive(
+                                                        _adTab
+                                                            .milkAllRecord
+                                                            .milkDataByRow[
+                                                                index]
+                                                            .morningTime
+                                                            .toString(),
+                                                        style: TextStyle(
+                                                          fontSize: 30,
+                                                        ),
+                                                      ))),
+                                                  Container(
+                                                      height: 60,
+                                                      width: 150.w,
+                                                      child: Center(
+                                                          child: TextResponsive(
+                                                        _adTab
+                                                            .milkAllRecord
+                                                            .milkDataByRow[
+                                                                index]
+                                                            .eveningTime
+                                                            .toString(),
+                                                        style: TextStyle(
+                                                          fontSize: 30,
+                                                        ),
+                                                      ))),
+                                                  Container(
+                                                      height: 60,
+                                                      width: 150.w,
+                                                      child: Center(
+                                                          child: TextResponsive(
+                                                        _adTab
+                                                            .milkAllRecord
+                                                            .milkDataByRow[
+                                                                index]
+                                                            .sumOfOne
+                                                            .toString(),
+                                                        style: TextStyle(
+                                                          fontSize: 30,
+                                                        ),
+                                                      ))),
+                                                  Container(
+                                                    height: 60,
+                                                    width: 150.w,
+                                                    child: Center(
+                                                      child: GestureDetector(
+                                                        onTap: () async {
+                                                          Dio dio = Dio();
+                                                          DelHealth del_health;
+                                                          Response r = await dio.get(
+                                                              "https://channab.com/api/milk_delete/?milk_id=${_adTab.milkAllRecord.milkDataByRow[index].id}",
+                                                              options: Options(
+                                                                  headers: {
+                                                                    "token":
+                                                                        widget
+                                                                            .token
+                                                                  }));
+                                                          print(r.data);
+                                                          setState(() {
+                                                            del_health =
+                                                                delHealthFromJson(
+                                                                    r.data);
+                                                          });
+                                                          if (del_health
+                                                                  .status ==
+                                                              200) {
+                                                            Navigator.push(
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                  builder:
+                                                                      (context) =>
+                                                                          Animal_details(
+                                                                            token:
+                                                                                widget.token,
+                                                                          )),
+                                                            );
+                                                          }
+                                                        },
+                                                        child:
+                                                            Icon(Icons.delete),
+                                                      ),
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            );
+                                          }),
+                                      Container(
+                                        color: Colors.white,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          children: <Widget>[
+                                            Container(
+                                              height: 60,
+                                              width: 150.w,
+                                              child: Center(
+                                                child: TextResponsive(
+                                                  'Total',
+                                                  style: TextStyle(
+                                                    fontSize: 30,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                              height: 60,
+                                              width: 150.w,
+                                              child: Center(
+                                                child: TextResponsive(
+                                                  _adTab.milkAllRecord
+                                                      .sumOfMorningColoumn
+                                                      .toString(),
+                                                  style: TextStyle(
+                                                    fontSize: 30,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                              height: 60,
+                                              width: 150.w,
+                                              child: Center(
+                                                child: TextResponsive(
+                                                  _adTab.milkAllRecord
+                                                      .sumOfEveningColourmn
+                                                      .toString(),
+                                                  style: TextStyle(
+                                                    fontSize: 30,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                              height: 60,
+                                              width: 150.w,
+                                              child: Center(
+                                                child: TextResponsive(
+                                                  _adTab.milkAllRecord.sumOfAll
+                                                      .toString(),
+                                                  style: TextStyle(
+                                                    fontSize: 30,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                              height: 60,
+                                              width: 150.w,
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                ListView.builder(
+                                    physics: NeverScrollableScrollPhysics(),
+                                    scrollDirection: Axis.vertical,
+                                    shrinkWrap: true,
+                                    itemCount: _adTab.gallerList.length,
+                                    itemBuilder:
+                                        (BuildContext ctxt, int index) {
+                                      return Padding(
+                                        padding: EdgeInsets.all(30.0),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(20)),
+                                          child: Stack(
+                                            children: <Widget>[
+                                              Image.network(_adTab
+                                                  .gallerList[index].image),
+                                              Positioned(
+                                                top: 10,
+                                                right: 10,
+                                                child: GestureDetector(
+                                                  onTap: () async {
+                                                    Dio dio = Dio();
+                                                    DelHealth del_health;
+                                                    Response r = await dio.get(
+                                                        "https://channab.com/api/image_delete/?image_id=${_adTab.gallerList[index].id}",
+                                                        options:
+                                                            Options(headers: {
+                                                          "token": widget.token
+                                                        }));
+                                                    print(r.data);
+                                                    setState(() {
+                                                      del_health =
+                                                          delHealthFromJson(
+                                                              r.data);
+                                                    });
+                                                    if (del_health.status ==
+                                                        200) {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                Animal_details(
+                                                                  token: widget
+                                                                      .token,
+                                                                )),
+                                                      );
+                                                    }
+                                                  },
+                                                  child: CircleAvatar(
+                                                      backgroundColor:
+                                                          Colors.white,
+                                                      child:
+                                                          Icon(Icons.delete)),
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    }),
+                                ListView.builder(
+                                    physics: NeverScrollableScrollPhysics(),
+                                    scrollDirection: Axis.vertical,
+                                    shrinkWrap: true,
+                                    itemCount: _adTab.allDescriptionList.length,
+                                    itemBuilder:
+                                        (BuildContext ctxt, int index) {
+                                      return Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Container(
+                                          height: 200,
+                                          color: Colors.white,
+                                          child: Column(
+                                            children: <Widget>[
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceAround,
+                                                children: <Widget>[
+                                                  Text(_adTab
+                                                      .allDescriptionList[index]
+                                                      .createdOn),
+                                                  GestureDetector(
+                                                    onTap: () async {
+                                                      Dio dio = Dio();
+                                                      DelHealth del_health;
+                                                      Response r = await dio.get(
+                                                          "https://channab.com/api/description_delete/?delete_desc_id=${_adTab.allDescriptionList[index].id}",
+                                                          options: Options(
+                                                              headers: {
+                                                                "token":
+                                                                    widget.token
+                                                              }));
+                                                      print(r.data);
+                                                      setState(() {
+                                                        del_health =
+                                                            delHealthFromJson(
+                                                                r.data);
+                                                      });
+                                                      if (del_health.status ==
+                                                          200) {
+                                                        Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  Animal_details(
+                                                                    token: widget
+                                                                        .token,
+                                                                  )),
+                                                        );
+                                                      }
+                                                    },
+                                                    child: Icon(Icons.delete),
+                                                  )
+                                                ],
+                                              ),
+                                              Flexible(
+                                                child: Text(
+                                                  _adTab
+                                                      .allDescriptionList[index]
+                                                      .description,
+                                                  style:
+                                                      TextStyle(fontSize: 35),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    }),
                               ],
                               controller: _tabController,
                             ),
@@ -1081,6 +1770,55 @@ class _Animal_detailsState extends State<Animal_details>
                     ),
                   ],
                 ),
+          //   bottomNavigationBar: BottomNavigationBar(
+          //     // type: BottomNavigationBarType.fixed,
+          //     selectedIconTheme: IconThemeData(color: Colors.green),
+          //     selectedItemColor: Colors.green,
+          //     unselectedItemColor: Color(0xff707070),
+          //     showSelectedLabels: false,
+          //     currentIndex: _selectedIndex,
+          //     onTap: _onItemTapped,
+          //     items: const <BottomNavigationBarItem>[
+          //       BottomNavigationBarItem(
+          //         icon: Icon(
+          //           Icons.home,
+          //         ),
+          //         title: TextResponsive(
+          //           'Home',
+          //           style: optionStyle,
+          //         ),
+          //       ),
+          //       BottomNavigationBarItem(
+          //         icon: Icon(
+          //           Icons.tram,
+          //         ),
+          //         title: TextResponsive(
+          //           'My Farm',
+          //           style: optionStyle,
+          //         ),
+          //       ),
+          //       BottomNavigationBarItem(
+          //         icon: Icon(
+          //           Icons.people_outline,
+          //         ),
+          //         title: TextResponsive(
+          //           'Users',
+          //           style: optionStyle,
+          //           textAlign: TextAlign.left,
+          //         ),
+          //       ),
+          //       BottomNavigationBarItem(
+          //         icon: Icon(
+          //           Icons.settings,
+          //         ),
+          //         title: TextResponsive(
+          //           'Settings',
+          //           style: optionStyle,
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
         ),
       ),
     );
